@@ -1,0 +1,8 @@
+requests
+pandas
+psycopg2-binary
+sqlalchemy
+alembic
+pydantic
+pydantic-settings
+google-cloud-storage
