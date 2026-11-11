@@ -10,3 +10,11 @@ requires-python = ">=3.12"
 [tool.setuptools.packages.find]
 where = ["src"]
 include = ["pokeapi_pipeline*"]
+
+[tool.mypy]
+plugins = ["pydantic.mypy"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = ["integration: needs the running database and GCP credentials"]
+addopts = "-m 'not integration'"

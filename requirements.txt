@@ -6,3 +6,4 @@ alembic
 pydantic
 pydantic-settings
 google-cloud-storage
+pytest
