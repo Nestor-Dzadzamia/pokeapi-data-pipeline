@@ -225,4 +225,4 @@ __marimo__/
 # Project-specific
 .idea/
 secrets/
-data/cache/
+data/
