@@ -2,7 +2,7 @@ from logging.config import fileConfig
 
 from alembic import context
 
-from pokeapi_pipeline.db.engine import get_engine
+from pokeapi_pipeline.db.database import Database
 from pokeapi_pipeline.db.tables import metadata
 from pokeapi_pipeline.util.config import Settings
 
@@ -16,7 +16,7 @@ target_metadata = metadata
 
 def run_migrations_offline() -> None:
     context.configure(
-        url=get_engine(Settings()).url,
+        url=Database(Settings()).get_engine().url,
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
@@ -27,7 +27,7 @@ def run_migrations_offline() -> None:
 
 
 def run_migrations_online() -> None:
-    connectable = get_engine(Settings())
+    connectable = Database(Settings()).get_engine()
 
     with connectable.connect() as connection:
         context.configure(connection=connection, target_metadata=target_metadata)
