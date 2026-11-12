@@ -14,5 +14,22 @@ services:
       test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 5s
       retries: 10
+
+  migrate:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: alembic upgrade head
+    env_file: .env
+    environment:
+      DB_HOST: db
+      DB_HOST_PORT: ${DB_CONTAINER_PORT:-5432}
+      GOOGLE_CLOUD_CREDENTIALS: /app/secrets/gcp-key.json
+    volumes:
+      - ${GOOGLE_CLOUD_CREDENTIALS}:/app/secrets/gcp-key.json:ro
+      - ./src:/app/src:ro
+    depends_on:
+      db:
+        condition: service_healthy
 volumes:
   pgdata:
