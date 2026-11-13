@@ -7,7 +7,7 @@
 | Group | Tables | Primary key |
 |---|---|---|
 | Main | `species`, `pokemon` | PokéAPI id |
-| Lookups (mostly `id`, `name`) | `generations`, `habitats`, `evolution_chains`, `types`, `abilities`, `stats`, `location_areas`, `versions` | PokéAPI id |
+| Lookups (mostly `id`, `name`) | `generations`, `habitats`, `evolution_chains`, `evolution_triggers`, `types`, `abilities`, `stats`, `location_areas`, `versions` | PokéAPI id |
 | Links | `pokemon_types`, `pokemon_abilities`, `pokemon_stats`, `encounters` | the ids together |
 | Pipeline | `sprites`, `pipeline_runs`, `run_errors` | see diagram |
 
@@ -39,6 +39,8 @@ We load it as a `species` row, with no `pokemon` row. Pikachu's `evolves_from_sp
 
 Each species points at its parent with `evolves_from_species_id`. Vileplume and Bellossom both point at Gloom (44). Two rows with the same parent is the branch.
 
+How it evolved is on the same row: `evolution_trigger_id` (level-up, use-item, trade) and `min_level`. Gloom has level-up and 21; Vileplume has use-item and no level. When the API lists several ways, we keep the first.
+
 **4. How does each table avoid duplicates on a second run?**
 
 | Tables | Conflict key |
@@ -54,7 +56,8 @@ Each species points at its parent with `evolves_from_species_id`. Vileplume and 
 | Column | Why |
 |---|---|
 | `species.habitat_id` | the API has no habitat for some species |
-| `species.evolves_from_species_id` | a base species (Oddish) has no parent |
+| `species.evolves_from_species_id`, `evolution_trigger_id` | a base species (Oddish) has no parent |
+| `species.min_level` | not every evolution has a level (Vileplume needs a stone) |
 | `abilities.short_effect` | there may be no English text |
 | `sprites.source_url`, `gcs_uri`, `size_bytes`, `checksum` | the sprite is missing or the upload failed |
 | `pipeline_runs.finished_at` | the run is still going or crashed |
