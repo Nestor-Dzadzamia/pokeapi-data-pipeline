@@ -27,3 +27,12 @@ class Settings(BaseSettings):
     cache_dir: Path = ROOT / "data" / "cache"
     http_timeout: int = Field(default=10, gt=0)
     max_retries: int = Field(default=3, ge=0)
+
+    paths: dict[str, str] = {
+        "pokemon": "pokemon/{}",
+        "encounters": "pokemon/{}/encounters",
+        "species": "pokemon-species/{}",
+        "evolution_chains": "evolution-chain/{}",
+        "types": "type/{}",
+        "abilities": "ability/{}",
+    }
