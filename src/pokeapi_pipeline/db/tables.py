@@ -30,6 +30,13 @@ evolution_chains = Table(
     Column("id", Integer, primary_key=True, autoincrement=False),
 )
 
+evolution_triggers = Table(
+    "evolution_triggers",
+    metadata,
+    Column("id", Integer, primary_key=True, autoincrement=False),
+    Column("name", Text, nullable=False),
+)
+
 types = Table(
     "types",
     metadata,
@@ -79,6 +86,8 @@ species = Table(
     Column("habitat_id", ForeignKey("habitats.id")),
     Column("evolution_chain_id", ForeignKey("evolution_chains.id"), nullable=False),
     Column("evolves_from_species_id", ForeignKey("species.id")),
+    Column("evolution_trigger_id", ForeignKey("evolution_triggers.id")),
+    Column("min_level", Integer),
 )
 
 pokemon = Table(
