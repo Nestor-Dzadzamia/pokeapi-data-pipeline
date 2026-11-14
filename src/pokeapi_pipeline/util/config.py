@@ -28,6 +28,8 @@ class Settings(BaseSettings):
     http_timeout: int = Field(default=10, gt=0)
     max_retries: int = Field(default=3, ge=0)
 
+    batch_size: int = Field(default=500, ge=1)
+
     paths: dict[str, str] = {
         "pokemon": "pokemon/{}",
         "encounters": "pokemon/{}/encounters",
