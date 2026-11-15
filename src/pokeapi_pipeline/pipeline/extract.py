@@ -1,8 +1,11 @@
+import logging
 import threading
 from concurrent.futures import ThreadPoolExecutor
 
 from pokeapi_pipeline.api.client import PokeAPIClient
 from pokeapi_pipeline.util.config import Settings
+
+logger = logging.getLogger(__name__)
 
 
 class Extractor:
@@ -59,8 +62,9 @@ class Extractor:
         return species_ids
 
     def run(self, pokemon_ids: list[int]) -> dict[str, dict[int, dict | list]]:
-        with ThreadPoolExecutor(max_workers=self._settings.workers) as t_pool:
+        with ThreadPoolExecutor(max_workers=self._settings.workers, thread_name_prefix="extract") as t_pool:
             list(t_pool.map(self._extract_pokemon, pokemon_ids)) # first limit number of pokemon fetching
             list(t_pool.map(self._extract_species, self._chain_species_ids())) # fetching parents after chains are done fetching
 
+        logger.info("extracted %s", {kind: len(items) for kind, items in self._raw.items()})
         return self._raw

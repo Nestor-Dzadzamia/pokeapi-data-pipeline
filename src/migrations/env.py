@@ -8,7 +8,7 @@ from pokeapi_pipeline.util.config import Settings
 
 config = context.config
 
-if config.config_file_name is not None:
+if config.config_file_name is not None and config.attributes.get("configure_logger", True):
     fileConfig(config.config_file_name, disable_existing_loggers=False)
 
 target_metadata = metadata

@@ -4,6 +4,7 @@
 .env
 secrets
 data
+logs
 docs
 tests
 **/__pycache__

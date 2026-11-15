@@ -1,8 +1,12 @@
 import json
+import logging
 
 import requests
 
 from pokeapi_pipeline.util.config import Settings, ROOT
+from pokeapi_pipeline.util.log import setup_logging
+
+logger = logging.getLogger(__name__)
 
 OUTPUT_DIR = ROOT / "data" / "exploration"
 
@@ -22,6 +26,7 @@ SAMPLE_API_URLS = {
 
 def main() -> None:
     settings = Settings()
+    setup_logging(settings)
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
     with requests.Session() as session:
@@ -32,7 +37,7 @@ def main() -> None:
             response.raise_for_status()
             target = OUTPUT_DIR / f"{name}.json"
             target.write_text(json.dumps(response.json(), indent=2), encoding="utf-8")
-            print(f"saved {target.relative_to(ROOT)}")
+            logger.info("saved %s", target.relative_to(ROOT))
 
 if __name__ == "__main__":
     main()

@@ -1,5 +1,6 @@
 import base64
 import hashlib
+import logging
 import threading
 from collections import Counter
 from concurrent.futures import ThreadPoolExecutor
@@ -12,6 +13,9 @@ from sqlalchemy import Connection, Engine, bindparam, select, update
 from pokeapi_pipeline.cloud.gcs import GCS
 from pokeapi_pipeline.db.tables import sprites, pokemon
 from pokeapi_pipeline.util.config import Settings
+
+logger = logging.getLogger(__name__)
+
 
 class Media:
     def __init__(self, engine: Engine, gcs: GCS, settings: Settings):
@@ -33,6 +37,7 @@ class Media:
         last_error: Exception | None = None
         for attempt in range(0, self._max_retries + 1):
             if attempt:
+                logger.warning("retry %d/%d after %r", attempt, self._max_retries, last_error)
                 sleep(0.5 * 2 ** (attempt - 1))
             try:
                 return action()
@@ -82,6 +87,7 @@ class Media:
         result = {"pokemon_id": joined_sprites_and_pokemon["pokemon_id"], "format": joined_sprites_and_pokemon["format"]}
 
         if joined_sprites_and_pokemon["source_url"] is None:
+            logger.warning("%s has no %s sprite url", joined_sprites_and_pokemon["name"], joined_sprites_and_pokemon["format"])
             return {**result, "status": "missing"}
 
         try:
@@ -98,11 +104,9 @@ class Media:
                 lambda: self._upload_single_object(object_name, data, content_type, checksum)
             )
         except Exception as error:
-            return {
-                **result,
-                "status": "failed",
-                "error": f"{joined_sprites_and_pokemon['name']} {joined_sprites_and_pokemon['format']}: {error!r}",
-            }
+            message = f"{joined_sprites_and_pokemon['name']} {joined_sprites_and_pokemon['format']}: {error!r}"
+            logger.error("sprite failed: %s", message)
+            return {**result, "status": "failed", "error": message}
 
         return {
             **result,
@@ -147,7 +151,7 @@ class Media:
     def run(self) -> dict:
         joined_sprites_and_pokemon = self._join_sprites_and_pokemon()
 
-        with ThreadPoolExecutor(max_workers=self._workers) as t_pool:
+        with ThreadPoolExecutor(max_workers=self._workers, thread_name_prefix="media") as t_pool:
             results = list(t_pool.map(self._upload, joined_sprites_and_pokemon))
 
         with self._engine.begin() as connection:

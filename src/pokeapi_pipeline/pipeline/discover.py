@@ -1,5 +1,9 @@
+import logging
+
 from pokeapi_pipeline.api.client import PokeAPIClient
 from pokeapi_pipeline.util.config import Settings
+
+logger = logging.getLogger(__name__)
 
 
 class Discoverer:
@@ -9,4 +13,6 @@ class Discoverer:
 
     def pokemon_ids(self) -> list[int]:
         pokemon_list = self._client.get(f"pokemon?limit={self._limit}&offset=0")
-        return [self._client.id_from_url(item["url"]) for item in pokemon_list["results"]]
+        pokemon_ids = [self._client.id_from_url(item["url"]) for item in pokemon_list["results"]]
+        logger.info("discovered %d Pokémon ids", len(pokemon_ids))
+        return pokemon_ids

@@ -34,6 +34,10 @@ The pipeline creates or updates the schema itself (Alembic migrations in `src/mi
 | `POKEMON_LIMIT` or `--limit` | 50 | how many Pokémon to load |
 | `BATCH_SIZE` | 500 | rows per INSERT |
 | `MAX_RETRIES` | 3 | retries for API calls, downloads and uploads |
+| `LOG_LEVEL` | INFO | `DEBUG`, `INFO`, `WARNING` or `ERROR` |
+| `LOG_FILE` | `logs/pipeline.log` | where the log is written |
+
+Everything the pipeline does is logged to the terminal and appended to `logs/pipeline.log`. Each line shows the thread that wrote it, for example `[extract_3]` or `[media_7]`.
 
 ### All 151 Generation I Pokémon
 

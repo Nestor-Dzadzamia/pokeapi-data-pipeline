@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Literal
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import Field, FilePath, SecretStr
@@ -29,6 +30,9 @@ class Settings(BaseSettings):
     max_retries: int = Field(default=3, ge=0)
 
     batch_size: int = Field(default=500, ge=1)
+
+    log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = "INFO"
+    log_file: Path = ROOT / "logs" / "pipeline.log"
 
     paths: dict[str, str] = {
         "pokemon": "pokemon/{}",

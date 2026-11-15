@@ -1,4 +1,5 @@
 import argparse
+import logging
 
 from pokeapi_pipeline.api.client import PokeAPIClient
 from pokeapi_pipeline.cloud.gcs import GCS
@@ -11,6 +12,9 @@ from pokeapi_pipeline.pipeline.media import Media
 from pokeapi_pipeline.pipeline.run_record import RunRecord
 from pokeapi_pipeline.pipeline.transform import Transformer
 from pokeapi_pipeline.util.config import Settings
+from pokeapi_pipeline.util.log import setup_logging
+
+logger = logging.getLogger("pokeapi_pipeline")
 
 
 def parse_overrides() -> dict:
@@ -22,30 +26,32 @@ def parse_overrides() -> dict:
 
 def main() -> None:
     settings = Settings(**parse_overrides())
+    setup_logging(settings)
     upgrade_to_head()
 
     database = Database(settings)
     engine = database.get_engine()
     record = RunRecord(engine)
     run_id = record.start()
-    print(f"run {run_id}: {settings.pokemon_limit} Pokémon, {settings.workers} workers")
+    logger.info("run %d started: %d Pokémon, %d workers", run_id, settings.pokemon_limit, settings.workers)
 
     try:
         client = PokeAPIClient(settings)
         pokemon_ids = Discoverer(client, settings).pokemon_ids()
         raw = Extractor(client, settings).run(pokemon_ids)
-        print(f"extract: {client.stats()}")
+        logger.info("extract: %s", client.stats())
         frames = Transformer(raw).run()
-        print(f"load: {Loader(engine, settings).run(frames)}")
+        logger.info("load: %s", Loader(engine, settings).run(frames))
         media = Media(engine, GCS(settings), settings).run()
-        print(f"media: {media}")
+        logger.info("media: %s", media)
     except Exception as error:
+        logger.error("run %d failed", run_id)
         record.finish("failed", 0, 0, [repr(error)])
         raise
     else:
         status = "completed_with_errors" if media["errors"] else "succeeded"
         record.finish(status, len(frames["pokemon"]), media["uploaded"] + media["skipped"], media["errors"])
-        print(f"run {run_id}: {status}")
+        logger.info("run %d finished: %s", run_id, status)
     finally:
         database.dispose()
 

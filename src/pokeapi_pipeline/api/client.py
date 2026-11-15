@@ -1,4 +1,5 @@
 import json
+import logging
 import threading
 from pathlib import Path
 from time import sleep
@@ -6,6 +7,9 @@ from time import sleep
 import requests
 
 from pokeapi_pipeline.util.config import Settings
+
+logger = logging.getLogger(__name__)
+
 
 class PokeAPIClient:
     """fetches json from pokeapi, one client is shared by all worker threads"""
@@ -37,6 +41,7 @@ class PokeAPIClient:
 
         for attempt in range(self._max_retries + 1):
             if attempt:
+                logger.warning("retry %d/%d for %s after %r", attempt, self._max_retries, url, last_error)
                 sleep(0.5 * 2 ** (attempt - 1)) # only in second+ attempts make thread wait
             try:
                 response = self._session().get(
