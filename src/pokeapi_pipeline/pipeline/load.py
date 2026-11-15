@@ -27,7 +27,7 @@ class Loader:
                 specie_depth += 1
             return specie_depth
 
-        return species.assign(depth=species["id"].map(depth)).sort_values(["depth", "id"]).drop(columns="depth") # return sorted frame by deepest species first
+        return species.assign(depth=species["id"].map(depth)).sort_values(["depth", "id"]).drop(columns="depth") # return sorted frame by parent species first
 
 
     def _upsert(self, connection: Connection, table: Table ,frame: pd.DataFrame) -> int:

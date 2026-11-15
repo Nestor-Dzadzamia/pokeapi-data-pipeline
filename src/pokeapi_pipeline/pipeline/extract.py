@@ -60,7 +60,7 @@ class Extractor:
 
     def run(self, pokemon_ids: list[int]) -> dict[str, dict[int, dict | list]]:
         with ThreadPoolExecutor(max_workers=self._settings.workers) as t_pool:
-            list(t_pool.map(self._extract_pokemon, pokemon_ids))
-            list(t_pool.map(self._extract_species, self._chain_species_ids()))
+            list(t_pool.map(self._extract_pokemon, pokemon_ids)) # first limit number of pokemon fetching
+            list(t_pool.map(self._extract_species, self._chain_species_ids())) # fetching parents after chains are done fetching
 
         return self._raw
