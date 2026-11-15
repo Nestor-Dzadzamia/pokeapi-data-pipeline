@@ -38,3 +38,8 @@ class Settings(BaseSettings):
         "types": "type/{}",
         "abilities": "ability/{}",
     }
+
+    folders: dict[str, tuple[str, str]] = {
+        "image/png": ("pngs", "png"),
+        "image/gif": ("gifs", "gif")
+    }
