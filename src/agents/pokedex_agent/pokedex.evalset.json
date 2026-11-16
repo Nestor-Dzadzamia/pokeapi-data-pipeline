@@ -1,0 +1,583 @@
+{
+  "eval_set_id": "pokedex",
+  "name": "pokedex",
+  "eval_cases": [
+    {
+      "eval_id": "Where_does_Mewtwo_live",
+      "conversation": [
+        {
+          "invocation_id": "e-f0bed06b-2e27-44b4-ba1a-197f88d0b74a",
+          "user_content": {
+            "parts": [
+              {
+                "text": "Where does Mewtwo live?"
+              }
+            ],
+            "role": "user"
+          },
+          "final_response": {
+            "parts": [
+              {
+                "text": "The data is not available for Mewtwo."
+              }
+            ],
+            "role": "model"
+          },
+          "intermediate_data": {
+            "invocation_events": [
+              {
+                "author": "pokedex_agent",
+                "content": {
+                  "parts": [
+                    {
+                      "function_call": {
+                        "id": "call_kir966oj",
+                        "args": {
+                          "name": "Mewtwo"
+                        },
+                        "name": "get_pokemon_habitat"
+                      }
+                    },
+                    {
+                      "function_call": {
+                        "id": "call_9el9yl8f",
+                        "args": {
+                          "name": "Mewtwo"
+                        },
+                        "name": "get_pokemon_locations"
+                      }
+                    }
+                  ],
+                  "role": "model"
+                },
+                "usage_metadata": {
+                  "cached_content_token_count": 0,
+                  "candidates_token_count": 50,
+                  "prompt_token_count": 884,
+                  "total_token_count": 934
+                },
+                "model_version": "ollama_chat/qwen2.5:7b"
+              },
+              {
+                "author": "pokedex_agent",
+                "content": {
+                  "parts": [
+                    {
+                      "function_response": {
+                        "id": "call_kir966oj",
+                        "name": "get_pokemon_habitat",
+                        "response": {
+                          "found": false,
+                          "message": "Mewtwo is not in the loaded data."
+                        }
+                      }
+                    },
+                    {
+                      "function_response": {
+                        "id": "call_9el9yl8f",
+                        "name": "get_pokemon_locations",
+                        "response": {
+                          "found": false,
+                          "message": "Mewtwo is not in the loaded data."
+                        }
+                      }
+                    }
+                  ],
+                  "role": "user"
+                }
+              },
+              {
+                "author": "pokedex_agent",
+                "usage_metadata": {
+                  "cached_content_token_count": 0,
+                  "candidates_token_count": 11,
+                  "prompt_token_count": 998,
+                  "total_token_count": 1009
+                },
+                "model_version": "ollama_chat/qwen2.5:7b"
+              }
+            ]
+          },
+          "creation_timestamp": 1794821258.667557
+        }
+      ],
+      "session_input": {
+        "app_name": "pokedex_agent",
+        "user_id": "user"
+      },
+      "creation_timestamp": 1794821464.1832771
+    },
+    {
+      "eval_id": "Show_me_bulbasaurs_animated_sprite",
+      "conversation": [
+        {
+          "invocation_id": "e-8682e47b-0d2d-4a88-a0d9-a6dfa840b807",
+          "user_content": {
+            "parts": [
+              {
+                "text": "Show me bulbasaur's animated sprite"
+              }
+            ],
+            "role": "user"
+          },
+          "final_response": {
+            "parts": [
+              {
+                "text": "The animated sprite for Bulbasaur is available at this URI: gs://pokemon-nestor-dzadzamia/gifs/1_bulbasaur.gif"
+              }
+            ],
+            "role": "model"
+          },
+          "intermediate_data": {
+            "invocation_events": [
+              {
+                "author": "pokedex_agent",
+                "content": {
+                  "parts": [
+                    {
+                      "function_call": {
+                        "id": "call_8k7n38l1",
+                        "args": {
+                          "name": "Bulbasaur",
+                          "animated": true
+                        },
+                        "name": "get_sprite_uri"
+                      }
+                    }
+                  ],
+                  "role": "model"
+                },
+                "usage_metadata": {
+                  "cached_content_token_count": 0,
+                  "candidates_token_count": 29,
+                  "prompt_token_count": 885,
+                  "total_token_count": 914
+                },
+                "model_version": "ollama_chat/qwen2.5:7b"
+              },
+              {
+                "author": "pokedex_agent",
+                "content": {
+                  "parts": [
+                    {
+                      "function_response": {
+                        "id": "call_8k7n38l1",
+                        "name": "get_sprite_uri",
+                        "response": {
+                          "found": true,
+                          "name": "bulbasaur",
+                          "format": "gif",
+                          "gcs_uri": "gs://pokemon-nestor-dzadzamia/gifs/1_bulbasaur.gif"
+                        }
+                      }
+                    }
+                  ],
+                  "role": "user"
+                }
+              },
+              {
+                "author": "pokedex_agent",
+                "usage_metadata": {
+                  "cached_content_token_count": 0,
+                  "candidates_token_count": 35,
+                  "prompt_token_count": 976,
+                  "total_token_count": 1011
+                },
+                "model_version": "ollama_chat/qwen2.5:7b"
+              }
+            ]
+          },
+          "creation_timestamp": 1794820730.1425788
+        }
+      ],
+      "session_input": {
+        "app_name": "pokedex_agent",
+        "user_id": "user"
+      },
+      "creation_timestamp": 1794821479.496327
+    },
+    {
+      "eval_id": "What_does_Oddish_evolve_into",
+      "conversation": [
+        {
+          "invocation_id": "e-1ff70ee6-f74f-4ebb-bb37-2ccb1101eb74",
+          "user_content": {
+            "parts": [
+              {
+                "text": "What does Oddish evolve into?"
+              }
+            ],
+            "role": "user"
+          },
+          "final_response": {
+            "parts": [
+              {
+                "text": "Oddish evolves into Gloom through level-up at level 21. Gloom can then evolve into Vileplume and Bellossom by using specific items."
+              }
+            ],
+            "role": "model"
+          },
+          "intermediate_data": {
+            "invocation_events": [
+              {
+                "author": "pokedex_agent",
+                "content": {
+                  "parts": [
+                    {
+                      "function_call": {
+                        "id": "call_xcv9340p",
+                        "args": {
+                          "name": "Oddish"
+                        },
+                        "name": "get_evolution_chain"
+                      }
+                    }
+                  ],
+                  "role": "model"
+                },
+                "usage_metadata": {
+                  "cached_content_token_count": 0,
+                  "candidates_token_count": 23,
+                  "prompt_token_count": 884,
+                  "total_token_count": 907
+                },
+                "model_version": "ollama_chat/qwen2.5:7b"
+              },
+              {
+                "author": "pokedex_agent",
+                "content": {
+                  "parts": [
+                    {
+                      "function_response": {
+                        "id": "call_xcv9340p",
+                        "name": "get_evolution_chain",
+                        "response": {
+                          "found": true,
+                          "chain": [
+                            {
+                              "name": "oddish",
+                              "evolves_from": null,
+                              "trigger": null,
+                              "min_level": null
+                            },
+                            {
+                              "name": "gloom",
+                              "evolves_from": "oddish",
+                              "trigger": "level-up",
+                              "min_level": 21
+                            },
+                            {
+                              "name": "vileplume",
+                              "evolves_from": "gloom",
+                              "trigger": "use-item",
+                              "min_level": null
+                            },
+                            {
+                              "name": "bellossom",
+                              "evolves_from": "gloom",
+                              "trigger": "use-item",
+                              "min_level": null
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  ],
+                  "role": "user"
+                }
+              },
+              {
+                "author": "pokedex_agent",
+                "usage_metadata": {
+                  "cached_content_token_count": 0,
+                  "candidates_token_count": 36,
+                  "prompt_token_count": 1050,
+                  "total_token_count": 1086
+                },
+                "model_version": "ollama_chat/qwen2.5:7b"
+              }
+            ]
+          },
+          "creation_timestamp": 1794820651.8944068
+        }
+      ],
+      "session_input": {
+        "app_name": "pokedex_agent",
+        "user_id": "user"
+      },
+      "creation_timestamp": 1794821494.390966
+    },
+    {
+      "eval_id": "What_type_is_Charizard",
+      "conversation": [
+        {
+          "invocation_id": "e-5d9659de-519f-49d3-a192-b46ddc10e7a5",
+          "user_content": {
+            "parts": [
+              {
+                "text": "What type is Charizard?"
+              }
+            ],
+            "role": "user"
+          },
+          "final_response": {
+            "parts": [
+              {
+                "text": "Charizard is of the fire and flying types."
+              }
+            ],
+            "role": "model"
+          },
+          "intermediate_data": {
+            "invocation_events": [
+              {
+                "author": "pokedex_agent",
+                "content": {
+                  "parts": [
+                    {
+                      "function_call": {
+                        "id": "call_mfpisx84",
+                        "args": {
+                          "name": "Charizard"
+                        },
+                        "name": "get_pokemon_profile"
+                      }
+                    }
+                  ],
+                  "role": "model"
+                },
+                "usage_metadata": {
+                  "cached_content_token_count": 0,
+                  "candidates_token_count": 23,
+                  "prompt_token_count": 883,
+                  "total_token_count": 906
+                },
+                "model_version": "ollama_chat/qwen2.5:7b"
+              },
+              {
+                "author": "pokedex_agent",
+                "content": {
+                  "parts": [
+                    {
+                      "function_response": {
+                        "id": "call_mfpisx84",
+                        "name": "get_pokemon_profile",
+                        "response": {
+                          "found": true,
+                          "name": "charizard",
+                          "types": [
+                            "fire",
+                            "flying"
+                          ],
+                          "abilities": [
+                            {
+                              "name": "blaze",
+                              "hidden": false
+                            },
+                            {
+                              "name": "solar-power",
+                              "hidden": true
+                            }
+                          ],
+                          "base_stats": {
+                            "hp": 78,
+                            "attack": 84,
+                            "defense": 78,
+                            "special-attack": 109,
+                            "special-defense": 85,
+                            "speed": 100
+                          },
+                          "height_m": 1.7,
+                          "weight_kg": 90.5
+                        }
+                      }
+                    }
+                  ],
+                  "role": "user"
+                }
+              },
+              {
+                "author": "pokedex_agent",
+                "usage_metadata": {
+                  "cached_content_token_count": 0,
+                  "candidates_token_count": 11,
+                  "prompt_token_count": 1043,
+                  "total_token_count": 1054
+                },
+                "model_version": "ollama_chat/qwen2.5:7b"
+              }
+            ]
+          },
+          "creation_timestamp": 1794820441.5262258
+        }
+      ],
+      "session_input": {
+        "app_name": "pokedex_agent",
+        "user_id": "user"
+      },
+      "creation_timestamp": 1794821506.670086
+    },
+    {
+      "eval_id": "Where_does_Pikachu_live",
+      "conversation": [
+        {
+          "invocation_id": "e-71c275fd-29fa-45c3-bc2f-158bedce93fe",
+          "user_content": {
+            "parts": [
+              {
+                "text": "Where does Pikachu live?"
+              }
+            ],
+            "role": "user"
+          },
+          "final_response": {
+            "parts": [
+              {
+                "text": "Pikachu's habitat is forest. It can be found in the following areas:\n\n- Red and Blue: Kanto Power Plant Area, Viridian Forest Area\n- Yellow: Pallet Town Area\n- Gold and Silver: Kanto Route 2 South towards Viridian City\n- Crystal: Celadon City Prize Corner, Kanto Route 2 South towards Viridian City\n- Other versions: Ruby, Sapphire, Emerald, FireRed, LeafGreen, Diamond, Pearl, Platinum, HeartGold, SoulSilver, X, Y, Omega Ruby, Alpha Sapphire, Sun, Moon, Ultra Sun, Ultra Moon, Let's Go Pikachu, Let's Go Eevee, Sword, Shield, The Isle of Armor Sword, The Isle of Armor Shield, Red Japan, Green Japan, Blue Japan"
+              }
+            ],
+            "role": "model"
+          },
+          "intermediate_data": {
+            "invocation_events": [
+              {
+                "author": "pokedex_agent",
+                "content": {
+                  "parts": [
+                    {
+                      "function_call": {
+                        "id": "call_ko739d34",
+                        "args": {
+                          "name": "Pikachu"
+                        },
+                        "name": "get_pokemon_habitat"
+                      }
+                    },
+                    {
+                      "function_call": {
+                        "id": "call_2qo6r2kz",
+                        "args": {
+                          "name": "Pikachu"
+                        },
+                        "name": "get_pokemon_locations"
+                      }
+                    }
+                  ],
+                  "role": "model"
+                },
+                "usage_metadata": {
+                  "cached_content_token_count": 0,
+                  "candidates_token_count": 50,
+                  "prompt_token_count": 882,
+                  "total_token_count": 932
+                },
+                "model_version": "ollama_chat/qwen2.5:7b"
+              },
+              {
+                "author": "pokedex_agent",
+                "content": {
+                  "parts": [
+                    {
+                      "function_response": {
+                        "id": "call_ko739d34",
+                        "name": "get_pokemon_habitat",
+                        "response": {
+                          "found": true,
+                          "name": "pikachu",
+                          "habitat": "forest",
+                          "generation": "generation-i",
+                          "is_legendary": false,
+                          "is_mythical": false
+                        }
+                      }
+                    },
+                    {
+                      "function_response": {
+                        "id": "call_2qo6r2kz",
+                        "name": "get_pokemon_locations",
+                        "response": {
+                          "found": true,
+                          "name": "pikachu",
+                          "locations": {
+                            "red": [
+                              "kanto-power-plant-area",
+                              "viridian-forest-area"
+                            ],
+                            "blue": [
+                              "kanto-power-plant-area",
+                              "viridian-forest-area"
+                            ],
+                            "yellow": [
+                              "pallet-town-area"
+                            ],
+                            "gold": [
+                              "kanto-route-2-south-towards-viridian-city"
+                            ],
+                            "silver": [
+                              "kanto-route-2-south-towards-viridian-city"
+                            ],
+                            "crystal": [
+                              "celadon-city-prize-corner",
+                              "kanto-route-2-south-towards-viridian-city"
+                            ]
+                          },
+                          "other_versions": [
+                            "ruby",
+                            "sapphire",
+                            "emerald",
+                            "firered",
+                            "leafgreen",
+                            "diamond",
+                            "pearl",
+                            "platinum",
+                            "heartgold",
+                            "soulsilver",
+                            "x",
+                            "y",
+                            "omega-ruby",
+                            "alpha-sapphire",
+                            "sun",
+                            "moon",
+                            "ultra-sun",
+                            "ultra-moon",
+                            "lets-go-pikachu",
+                            "lets-go-eevee",
+                            "sword",
+                            "shield",
+                            "the-isle-of-armor-sword",
+                            "red-japan",
+                            "green-japan",
+                            "blue-japan",
+                            "the-isle-of-armor-shield"
+                          ]
+                        }
+                      }
+                    }
+                  ],
+                  "role": "user"
+                }
+              },
+              {
+                "author": "pokedex_agent",
+                "usage_metadata": {
+                  "cached_content_token_count": 0,
+                  "candidates_token_count": 163,
+                  "prompt_token_count": 1258,
+                  "total_token_count": 1421
+                },
+                "model_version": "ollama_chat/qwen2.5:7b"
+              }
+            ]
+          },
+          "creation_timestamp": 1794820330.3353338
+        }
+      ],
+      "session_input": {
+        "app_name": "pokedex_agent",
+        "user_id": "user"
+      },
+      "creation_timestamp": 1794821514.1362581
+    }
+  ],
+  "creation_timestamp": 1794821437.738425
+}

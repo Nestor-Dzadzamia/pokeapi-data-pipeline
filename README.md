@@ -2,6 +2,8 @@
 
 Downloads the first 50 Pokémon from [PokéAPI](https://pokeapi.co), stores them in PostgreSQL, and copies two sprites per Pokémon (a PNG and an animated GIF) to Google Cloud Storage. All concurrency uses threads.
 
+A Pokédex agent built with Google ADK answers questions about the loaded data. It runs on a local Qwen 2.5 model through Ollama: see [Pokédex agent](#pokédex-agent).
+
 The data model and the answers to the design review questions are in [docs/design_review.md](docs/design_review.md).
 
 ## Setup
@@ -118,3 +120,76 @@ pytest -m integration
 ```
 
 Checks the database and GCS connections. Needs the database running and the key in place.
+
+## Pokédex agent
+
+`src/agents/pokedex_agent` is a Google ADK agent that answers questions about the Pokémon in the database. It runs on `qwen2.5:7b`, served locally by Ollama, so no API key is needed.
+
+### Setup
+
+1. Load the data first with the pipeline (see [Run](#run)). The agent only reads the database.
+2. Install Ollama and download the model:
+   ```bash
+   brew install ollama
+   brew services start ollama
+   ollama pull qwen2.5:7b
+   ```
+3. Set the model in `.env` (already in `.env.example`):
+
+   | Setting | Example | Meaning |
+   |---|---|---|
+   | `AGENT_MODEL` | `ollama_chat/qwen2.5:7b` | the LiteLLM model name the agent uses |
+   | `OLLAMA_API_BASE` | `http://localhost:11434` | where Ollama is listening |
+
+   The agent reaches the database with the same `POSTGRES_*` and `DB_*` settings as the pipeline. ADK reads `.env` from the repo root.
+
+### Run
+
+```bash
+adk web src/agents
+```
+
+Open http://localhost:8000 and pick `pokedex_agent`. To chat in the terminal instead, run `adk run src/agents/pokedex_agent`.
+
+### Tools
+
+Each tool is a plain Python function with type hints and a docstring. ADK turns these into the tool description the model sees. Every query uses SQLAlchemy bind parameters (`:name`), so user text is never pasted into the SQL.
+
+| Tool | Example question | Returns |
+|---|---|---|
+| `get_pokemon_profile(name)` | What type is Charizard? | types in slot order, abilities (with the hidden one marked), base stats, height in m, weight in kg |
+| `get_pokemon_habitat(name)` | Where does Pikachu live? | habitat, generation, legendary and mythical flags |
+| `get_pokemon_locations(name, version=None)` | Where does Pikachu live? | location areas grouped by game version |
+| `get_evolution_chain(name)` | What does Oddish evolve into? | the chain from its first stage, each member with `evolves_from`, trigger and minimum level |
+| `get_sprite_uri(name, animated=False)` | Show me Bulbasaur's animated sprite | the `gs://` URI of the PNG, or of the GIF when `animated=True` |
+
+- **Names:** `normalize_name` turns what the user typed into PokéAPI's spelling. It lowercases the name, turns ♀ and ♂ into `-f` and `-m`, removes `.`, `'` and `:`, and turns spaces into `-`. So `Mr. Mime` becomes `mr-mime` and `Nidoran♀` becomes `nidoran-f`. A name matches either a Pokémon or the default form of a species.
+- **Not in the data:** a Pokémon the database does not have returns `{"found": false}`, and the agent says the data is not available instead of guessing. Mewtwo (#150) is outside the first 50, so it is the example.
+- **Long location lists:** `get_pokemon_locations` returns the first 6 versions and names the rest in `other_versions`. Zubat alone has 568 encounter rows, more than the model's 4096-token context can hold. The agent can ask for one version with `version="red"`.
+
+The instruction in `agent.py` tells the model to answer only from tool results and to call both the habitat and the locations tools for "where does it live" questions. Temperature is 0, so the same question gets the same tool calls.
+
+### Evaluation
+
+```bash
+adk eval src/agents/pokedex_agent src/agents/pokedex_agent/pokedex.evalset.json --print_detailed_results --parallelism 1
+```
+
+`pokedex.evalset.json` holds 5 cases recorded from real `adk web` sessions. Each case stores the question, the tool calls expected with their arguments, and the expected answer:
+
+| Case | Expected tool calls | Expected answer |
+|---|---|---|
+| Where does Pikachu live? | `get_pokemon_habitat`, `get_pokemon_locations` | forest; Viridian Forest in Red and Blue |
+| What type is Charizard? | `get_pokemon_profile` | Fire and Flying |
+| What does Oddish evolve into? | `get_evolution_chain` | Gloom, then Vileplume or Bellossom |
+| Show me Bulbasaur's animated sprite | `get_sprite_uri(animated=True)` | `gs://<bucket>/gifs/1_bulbasaur.gif` |
+| Where does Mewtwo live? | `get_pokemon_habitat`, `get_pokemon_locations` | not in the loaded data |
+
+`test_config.json` sets the pass marks. `adk eval` picks it up because it sits next to the eval set:
+
+- `tool_trajectory_avg_score` 1.0 with `ANY_ORDER`: every expected tool call must happen, with the same arguments, in any order. Extra calls are allowed.
+- `response_match_score` 0.5: the answer must share at least half its words with the expected answer (ROUGE-1). A small model rewords its answers from run to run, so the default of 0.8 is too strict.
+
+`--parallelism 1` runs one case at a time. There is only one local model, and the default of 4 cases at once makes them queue in Ollama and time out on an 8 GB machine.
+
+Result on an 8 GB M-series Mac: **5 passed, 0 failed**, with every case scoring 1.0 on both metrics. A case takes 10 seconds to 2.5 minutes. ADK saves each run's details in `src/agents/pokedex_agent/.adk/eval_history/`, which is git-ignored.
