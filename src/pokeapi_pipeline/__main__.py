@@ -1,60 +1,6 @@
-import argparse
-import logging
-
-from pokeapi_pipeline.api.client import PokeAPIClient
-from pokeapi_pipeline.cloud.gcs import GCS
-from pokeapi_pipeline.db.database import Database
-from pokeapi_pipeline.db.migrate import upgrade_to_head
-from pokeapi_pipeline.pipeline.discover import Discoverer
-from pokeapi_pipeline.pipeline.extract import Extractor
-from pokeapi_pipeline.pipeline.load import Loader
-from pokeapi_pipeline.pipeline.media import Media
-from pokeapi_pipeline.pipeline.run_record import RunRecord
-from pokeapi_pipeline.pipeline.transform import Transformer
+from pokeapi_pipeline.pipeline.runner import PipelineRunner
 from pokeapi_pipeline.util.config import Settings
-from pokeapi_pipeline.util.log import setup_logging
-
-logger = logging.getLogger("pokeapi_pipeline")
-
-
-def parse_overrides() -> dict:
-    parser = argparse.ArgumentParser(description="Load Pokémon from PokéAPI into PostgreSQL and their sprites into GCS")
-    parser.add_argument("--workers", type=int, help="worker threads (default: WORKERS from .env, else 8)")
-    parser.add_argument("--limit", type=int, dest="pokemon_limit", help="how many Pokémon (default: POKEMON_LIMIT, else 50)")
-    return {name: value for name, value in vars(parser.parse_args()).items() if value is not None}
-
-
-def main() -> None:
-    settings = Settings(**parse_overrides())
-    setup_logging(settings)
-    upgrade_to_head()
-
-    database = Database(settings)
-    engine = database.get_engine()
-    record = RunRecord(engine)
-    run_id = record.start()
-    logger.info("run %d started: %d Pokémon, %d workers", run_id, settings.pokemon_limit, settings.workers)
-
-    try:
-        client = PokeAPIClient(settings)
-        pokemon_ids = Discoverer(client, settings).pokemon_ids()
-        raw = Extractor(client, settings).run(pokemon_ids)
-        logger.info("extract: %s", client.stats())
-        frames = Transformer(raw).run()
-        logger.info("load: %s", Loader(engine, settings).run(frames))
-        media = Media(engine, GCS(settings), settings).run()
-        logger.info("media: %s", media)
-    except Exception as error:
-        logger.error("run %d failed", run_id)
-        record.finish("failed", 0, 0, [repr(error)])
-        raise
-    else:
-        status = "completed_with_errors" if media["errors"] else "succeeded"
-        record.finish(status, len(frames["pokemon"]), media["uploaded"] + media["skipped"], media["errors"])
-        logger.info("run %d finished: %s", run_id, status)
-    finally:
-        database.dispose()
 
 
 if __name__ == "__main__":
-    main()
+    PipelineRunner(Settings()).run()
