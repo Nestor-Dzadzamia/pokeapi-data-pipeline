@@ -3,15 +3,17 @@ import threading
 from concurrent.futures import ThreadPoolExecutor
 
 from pokeapi_pipeline.api.client import PokeAPIClient
+from pokeapi_pipeline.pipeline.media import Media
 from pokeapi_pipeline.util.config import Settings
 
 logger = logging.getLogger(__name__)
 
 
 class Extractor:
-    def __init__(self, client: PokeAPIClient, settings: Settings):
+    def __init__(self, client: PokeAPIClient, media: Media, settings: Settings):
         self._client = client
-        self._workers = settings.workers
+        self._media = media
+        self._workers = settings.api_workers
         self._settings = settings
         self._lock = threading.Lock()
         self._seen_set: set[tuple[str, int]] = set()
@@ -36,6 +38,7 @@ class Extractor:
 
     def _extract_pokemon(self, pokemon_id: int) -> None:
         pokemon = self._fetch("pokemon", pokemon_id)
+        self._media.add(pokemon) # its sprites start downloading now, while the rest of the json is still being fetched
         self._fetch("encounters", pokemon_id)
 
         for entry in pokemon["types"]:
@@ -62,7 +65,7 @@ class Extractor:
         return species_ids
 
     def run(self, pokemon_ids: list[int]) -> dict[str, dict[int, dict | list]]:
-        with ThreadPoolExecutor(max_workers=self._settings.workers, thread_name_prefix="extract") as t_pool:
+        with ThreadPoolExecutor(max_workers=self._workers, thread_name_prefix="extract") as t_pool:
             list(t_pool.map(self._extract_pokemon, pokemon_ids)) # first limit number of pokemon fetching
             list(t_pool.map(self._extract_species, self._chain_species_ids())) # fetching parents after chains are done fetching
 

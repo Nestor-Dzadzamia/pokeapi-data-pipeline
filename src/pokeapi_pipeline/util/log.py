@@ -14,12 +14,13 @@ def _log_crash(exc_type, exc_value, exc_traceback) -> None:
 
 
 def setup_logging(settings: Settings) -> None:
-    """send every log line, and the traceback of any crash, to the terminal and to one log file"""
+    """send every log line, library warnings and the traceback of any crash to the log file only, nothing to the terminal"""
     settings.log_file.parent.mkdir(parents=True, exist_ok=True)
     logging.basicConfig(
         level=settings.log_level,
         format=LOG_FORMAT,
-        handlers=[logging.FileHandler(settings.log_file, encoding="utf-8"), logging.StreamHandler()],
+        handlers=[logging.FileHandler(settings.log_file, encoding="utf-8")],
         force=True,
     )
+    logging.captureWarnings(True)  # python warnings from libraries (google, urllib3...) go to the file too
     sys.excepthook = _log_crash

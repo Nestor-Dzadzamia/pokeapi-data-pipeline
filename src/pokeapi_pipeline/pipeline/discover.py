@@ -12,7 +12,7 @@ class Discoverer:
         self._limit = settings.pokemon_limit
 
     def pokemon_ids(self) -> list[int]:
-        pokemon_list = self._client.get(f"pokemon?limit={self._limit}&offset=0")
+        pokemon_list = self._client.get("pokemon", params={"limit": self._limit, "offset": 0})
         pokemon_ids = [self._client.id_from_url(item["url"]) for item in pokemon_list["results"]]
         logger.info("discovered %d Pokémon ids", len(pokemon_ids))
         return pokemon_ids

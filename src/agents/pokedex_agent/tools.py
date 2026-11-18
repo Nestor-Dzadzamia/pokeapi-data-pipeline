@@ -7,6 +7,7 @@ from pokeapi_pipeline.db.database import Database
 from pokeapi_pipeline.util.config import Settings
 
 MAX_VERSIONS = 6
+SPRITE_KEYS = {"png": "front_default", "gif": "other/showdown/front_default"}
 
 @cache
 def _engine() -> Engine:
@@ -220,9 +221,9 @@ def get_sprite_uri(name: str, animated: bool = False) -> dict:
 
     sprite_format = "gif" if animated else "png"
     rows = _rows(
-        "select gcs_uri from sprites where pokemon_id = :id and format = :format",
+        "select gcs_uri from sprites where pokemon_id = :id and sprite_key = :sprite_key",
         id=pokemon["id"],
-        format=sprite_format,
+        sprite_key=SPRITE_KEYS[sprite_format],
     )
 
     return {

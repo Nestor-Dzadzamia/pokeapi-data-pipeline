@@ -22,14 +22,16 @@ class Settings(BaseSettings):
     google_cloud_credentials: FilePath
     gcs_bucket: str
 
-    pokemon_limit: int = Field(default=50, ge=1)
-    workers: int = Field(default=8, ge=1, le=16)
+    pokemon_limit: int = Field(default=1351, ge=1)
+    api_workers: int = Field(default=64, ge=1, le=128)
+    sprite_workers: int = Field(default=64, ge=1, le=128)
     api_base_url: str = "https://pokeapi.co/api/v2"
-    cache_dir: Path = ROOT / "data" / "cache"
     http_timeout: int = Field(default=10, gt=0)
     max_retries: int = Field(default=3, ge=0)
 
     batch_size: int = Field(default=500, ge=1)
+
+    sprites_dir: Path = ROOT / "data" / "sprites"
 
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = "INFO"
     log_file: Path = ROOT / "logs" / "pipeline.log"
@@ -43,7 +45,5 @@ class Settings(BaseSettings):
         "abilities": "ability/{}",
     }
 
-    folders: dict[str, tuple[str, str]] = {
-        "image/png": ("pngs", "png"),
-        "image/gif": ("gifs", "gif")
-    }
+    rate_limit_pause: int = Field(default=30, ge=1)
+    rate_limit_max_pauses:int = Field(default=0, ge=0)

@@ -15,7 +15,7 @@ class Database:
 
         self._engine = create_engine(
             url,
-            pool_size=settings.workers,
+            pool_size=settings.api_workers,
             max_overflow=2,
             pool_pre_ping=True,
         )

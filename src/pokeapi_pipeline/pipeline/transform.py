@@ -1,16 +1,24 @@
+from pathlib import Path
+
 import pandas as pd
 
 from pokeapi_pipeline.api.client import PokeAPIClient
+from pokeapi_pipeline.pipeline.sprites import SpriteParser
 
+SPRITE_COLUMNS = ["pokemon_id", "sprite_key", "format", "source_url", "local_path"]
+RESULT_COLUMNS = ["pokemon_id", "sprite_key", "gcs_uri", "size_bytes", "checksum"]
 
 class Transformer:
-    def __init__(self, raw: dict[str, dict[int, dict | list]]):
+    def __init__(self, raw: dict[str, dict[int, dict | list]], sprites_dir: Path, sprite_results: list[dict]):
+        self._sprites_dir = sprites_dir
+        self._sprite_results = sprite_results
         self._pokemon = list(raw["pokemon"].values())
         self._species = list(raw["species"].values())
         self._chains = list(raw["evolution_chains"].values())
         self._types = list(raw["types"].values())
         self._abilities = list(raw["abilities"].values())
         self._encounters = raw["encounters"]
+        self._parser = SpriteParser(sprites_dir)
 
     @staticmethod
     def _ref_id(reference: dict | None) -> int | None:
@@ -106,16 +114,22 @@ class Transformer:
         return frame.drop_duplicates(["pokemon_id", "location_area_id", "version_id"]).reset_index(drop=True)
 
     def _sprites_frame(self) -> pd.DataFrame:
-        rows = []
-        for pokemon in self._pokemon:
-            sprites = pokemon["sprites"]
-            rows.append({"pokemon_id": pokemon["id"], "format": "png", "source_url": sprites["front_default"]})
-            rows.append({
-                "pokemon_id": pokemon["id"],
-                "format": "gif",
-                "source_url": sprites["other"]["showdown"]["front_default"],
-            })
-        return pd.DataFrame(rows, columns=["pokemon_id", "format", "source_url"])
+        """one row per sprite file, with the GCS columns Media returned (NULL when its download or upload failed)"""
+        files = pd.DataFrame(
+            [
+                file
+                for pokemon in self._pokemon
+                for file in self._parser.sprite_files(pokemon)
+            ],
+            columns=SPRITE_COLUMNS,
+        )
+        results = pd.DataFrame(
+            [result for result in self._sprite_results if result["status"] != "failed"],
+            columns=RESULT_COLUMNS,
+        )
+        frame = files.merge(results, on=["pokemon_id", "sprite_key"], how="left")
+        frame["size_bytes"] = frame["size_bytes"].astype("Int64")
+        return frame
 
     def run(self) -> dict[str, pd.DataFrame]:
         evolutions = self._evolutions()
