@@ -123,7 +123,7 @@
           "final_response": {
             "parts": [
               {
-                "text": "The animated sprite for Bulbasaur is available at this URI: gs://pokemon-nestor-dzadzamia/1_bulbasaur/gifs/other__showdown__front_default.gif"
+                "text": "The animated sprite for Bulbasaur is available at this URI: gs://pokemon-nestor-dzadzamia-west/1_bulbasaur/gifs/other__showdown__front_default.gif"
               }
             ],
             "role": "model"
@@ -167,7 +167,7 @@
                           "found": true,
                           "name": "bulbasaur",
                           "format": "gif",
-                          "gcs_uri": "gs://pokemon-nestor-dzadzamia/1_bulbasaur/gifs/other__showdown__front_default.gif"
+                          "gcs_uri": "gs://pokemon-nestor-dzadzamia-west/1_bulbasaur/gifs/other__showdown__front_default.gif"
                         }
                       }
                     }
